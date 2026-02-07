@@ -1,0 +1,35 @@
+# SplitEasy Backend Containerfile
+# Compatible with Docker and Podman
+
+FROM docker.io/library/openjdk:17-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy gradle wrapper and build files first (for layer caching)
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
+
+# Copy source code
+COPY src src
+
+# Make gradlew executable
+RUN chmod +x gradlew
+
+# Build the application (skip tests for faster builds)
+RUN ./gradlew build -x test --no-daemon
+
+# Create data directory for SQLite database
+RUN mkdir -p /app/data
+
+# Expose port 8080
+EXPOSE 8080
+
+# Health check (optional but recommended)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8080/ || exit 1
+
+# Run the application
+CMD ["./gradlew", "run", "--no-daemon"]

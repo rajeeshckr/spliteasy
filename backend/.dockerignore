@@ -1,0 +1,44 @@
+# Build artifacts
+build/
+.gradle/
+*.jar
+*.war
+*.ear
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Data directory (will be mounted as volume)
+data/
+*.db
+*.db-journal
+*.db-lock
+
+# Logs
+*.log
+logs/
+server.log
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+BLOCKERS.md
+STATUS.md
+ITERATION_*.md
+
+# Container files
+Dockerfile
+Containerfile
+.dockerignore
+
+# Temporary files
+*.tmp
+*.swp
+*~

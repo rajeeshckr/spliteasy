@@ -1,0 +1,31 @@
+package com.spliteasy.app.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+// Teal/Green money theme
+val md_theme_light_primary = Color(0xFF006E26)
+val md_theme_light_onPrimary = Color(0xFFFFFFFF)
+val md_theme_light_primaryContainer = Color(0xFF8EF99D)
+val md_theme_light_onPrimaryContainer = Color(0xFF002106)
+val md_theme_light_secondary = Color(0xFF006A62)
+val md_theme_light_onSecondary = Color(0xFFFFFFFF)
+val md_theme_light_secondaryContainer = Color(0xFF74F8E6)
+val md_theme_light_onSecondaryContainer = Color(0xFF00201D)
+val md_theme_light_tertiary = Color(0xFF3C6401)
+val md_theme_light_onTertiary = Color(0xFFFFFFFF)
+val md_theme_light_tertiaryContainer = Color(0xFFBCEC79)
+val md_theme_light_onTertiaryContainer = Color(0xFF111F00)
+val md_theme_light_error = Color(0xFFBA1A1A)
+val md_theme_light_errorContainer = Color(0xFFFFDAD6)
+val md_theme_light_onError = Color(0xFFFFFFFF)
+val md_theme_light_onErrorContainer = Color(0xFF410002)
+val md_theme_light_background = Color(0xFFFCFDF7)
+val md_theme_light_onBackground = Color(0xFF1A1C19)
+val md_theme_light_surface = Color(0xFFFCFDF7)
+val md_theme_light_onSurface = Color(0xFF1A1C19)
+val md_theme_light_surfaceVariant = Color(0xFFDEE5D9)
+val md_theme_light_onSurfaceVariant = Color(0xFF424940)
+val md_theme_light_outline = Color(0xFF72796F)
+val md_theme_light_inverseOnSurface = Color(0xFFF1F1EB)
+val md_theme_light_inverseSurface = Color(0xFF2F312D)
+val md_theme_light_inversePrimary = Color(0xFF72DC83)
