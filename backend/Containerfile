@@ -1,25 +1,28 @@
 # SplitEasy Backend Containerfile
 # Compatible with Docker and Podman
 
-FROM docker.io/library/eclipse-temurin:17-jdk-jammy
+# --- Stage 1: Build ---
+FROM docker.io/library/gradle:8.5-jdk17 AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy gradle wrapper and build files first (for layer caching)
-COPY gradlew .
-COPY gradle gradle
+# Copy build files first (for layer caching)
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
 
 # Copy source code
 COPY src src
 
-# Make gradlew executable
-RUN chmod +x gradlew
+# Build the application distribution (skip tests for faster builds)
+RUN gradle installDist -x test --no-daemon
 
-# Build the application (skip tests for faster builds)
-RUN ./gradlew build -x test --no-daemon
+# --- Stage 2: Runtime ---
+FROM docker.io/library/eclipse-temurin:17-jre-jammy
+
+WORKDIR /app
+
+# Copy the built distribution from the build stage
+COPY --from=build /app/build/install/spliteasy-backend/ .
 
 # Create data directory for SQLite database
 RUN mkdir -p /app/data
@@ -32,4 +35,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/ || exit 1
 
 # Run the application
-CMD ["./gradlew", "run", "--no-daemon"]
+CMD ["./bin/spliteasy-backend"]
