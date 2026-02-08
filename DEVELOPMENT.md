@@ -418,7 +418,7 @@ podman volume create spliteasy-data
 # Run with volume mount
 podman run -d \
   --name spliteasy-backend \
-  -p 8080:8080 \
+  -p 9090:8080 \
   -v spliteasy-data:/app/data:Z \
   --restart unless-stopped \
   localhost/spliteasy-backend:latest
