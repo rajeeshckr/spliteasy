@@ -19,7 +19,7 @@ object TestDbHelper {
                 driver = "org.h2.Driver"
             )
             transaction {
-                SchemaUtils.create(Users, Groups, GroupMembers, Expenses, ExpenseSplits)
+                SchemaUtils.create(Users, Groups, GroupMembers, Expenses, ExpenseSplits, Settlements)
             }
             initialized = true
         }
@@ -27,6 +27,7 @@ object TestDbHelper {
 
     fun cleanAll() {
         transaction {
+            Settlements.deleteAll()
             ExpenseSplits.deleteAll()
             Expenses.deleteAll()
             GroupMembers.deleteAll()

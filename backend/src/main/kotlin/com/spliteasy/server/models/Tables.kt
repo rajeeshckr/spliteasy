@@ -50,3 +50,14 @@ object ExpenseSplits : Table("expense_splits") {
 
     override val primaryKey = PrimaryKey(id)
 }
+
+object Settlements : Table() {
+    val id = integer("id").autoIncrement()
+    val groupId = integer("group_id").references(Groups.id)
+    val fromUserId = integer("from_user_id").references(Users.id)
+    val toUserId = integer("to_user_id").references(Users.id)
+    val amountCents = long("amount_cents")
+    val createdAt = long("created_at")
+
+    override val primaryKey = PrimaryKey(id)
+}

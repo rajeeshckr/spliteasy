@@ -23,26 +23,25 @@ object BalanceService {
                 (Expenses.groupId eq groupId) and (Expenses.paidByUserId eq userId)
             }.sumOf { it[Expenses.amountCents] }
 
-            // Amount already settled on expenses this user paid for (by other users)
-            val settledOnUserExpenses = (ExpenseSplits innerJoin Expenses)
-                .select {
-                    (Expenses.groupId eq groupId) and
-                    (Expenses.paidByUserId eq userId) and
-                    (ExpenseSplits.userId neq userId) and
-                    (ExpenseSplits.settled eq true)
-                }
-                .sumOf { it[ExpenseSplits.shareAmountCents] }
-
-            // Amount user owes (excluding settled splits)
+            // Amount user owes (their share of all expenses)
             val owed = (ExpenseSplits innerJoin Expenses)
                 .select {
                     (Expenses.groupId eq groupId) and
-                    (ExpenseSplits.userId eq userId) and
-                    (ExpenseSplits.settled eq false)
+                    (ExpenseSplits.userId eq userId)
                 }
                 .sumOf { it[ExpenseSplits.shareAmountCents] }
 
-            userBalances[userId] = (paid - settledOnUserExpenses) - owed
+            // Amount received via settlements (from other users) - reduces what you're owed
+            val settlementsReceived = Settlements.select {
+                (Settlements.groupId eq groupId) and (Settlements.toUserId eq userId)
+            }.sumOf { it[Settlements.amountCents] }
+
+            // Amount paid via settlements (to other users) - reduces what you owe
+            val settlementsPaid = Settlements.select {
+                (Settlements.groupId eq groupId) and (Settlements.fromUserId eq userId)
+            }.sumOf { it[Settlements.amountCents] }
+
+            userBalances[userId] = (paid - owed) - settlementsReceived + settlementsPaid
         }
 
         // Simplify debts
@@ -55,16 +54,13 @@ object BalanceService {
     }
 
     fun settleDebt(groupId: Int, request: SettleRequest): Result<Unit> = transaction {
-        // Mark all relevant splits as settled
-        val expenses = Expenses.select { Expenses.groupId eq groupId }
-            .map { it[Expenses.id] }
-
-        expenses.forEach { expenseId ->
-            ExpenseSplits.update({
-                (ExpenseSplits.expenseId eq expenseId) and (ExpenseSplits.userId eq request.fromUserId)
-            }) {
-                it[settled] = true
-            }
+        // Record the settlement transaction
+        Settlements.insert {
+            it[Settlements.groupId] = groupId
+            it[fromUserId] = request.fromUserId
+            it[toUserId] = request.toUserId
+            it[amountCents] = request.amountCents
+            it[createdAt] = System.currentTimeMillis()
         }
 
         Result.success(Unit)

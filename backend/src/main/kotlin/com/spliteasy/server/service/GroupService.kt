@@ -111,25 +111,24 @@ object GroupService {
             (Expenses.groupId eq groupId) and (Expenses.paidByUserId eq userId)
         }.sumOf { it[Expenses.amountCents] }
 
-        // Amount already settled on expenses this user paid for (by other users)
-        val settledOnUserExpenses = (ExpenseSplits innerJoin Expenses)
-            .select {
-                (Expenses.groupId eq groupId) and
-                (Expenses.paidByUserId eq userId) and
-                (ExpenseSplits.userId neq userId) and
-                (ExpenseSplits.settled eq true)
-            }
-            .sumOf { it[ExpenseSplits.shareAmountCents] }
-
-        // Amount user owes (excluding settled splits)
+        // Amount user owes (their share of all expenses)
         val owed = (ExpenseSplits innerJoin Expenses)
             .select {
                 (Expenses.groupId eq groupId) and
-                (ExpenseSplits.userId eq userId) and
-                (ExpenseSplits.settled eq false)
+                (ExpenseSplits.userId eq userId)
             }
             .sumOf { it[ExpenseSplits.shareAmountCents] }
 
-        return (paid - settledOnUserExpenses) - owed
+        // Amount received via settlements (from other users) - reduces what you're owed
+        val settlementsReceived = Settlements.select {
+            (Settlements.groupId eq groupId) and (Settlements.toUserId eq userId)
+        }.sumOf { it[Settlements.amountCents] }
+
+        // Amount paid via settlements (to other users) - reduces what you owe
+        val settlementsPaid = Settlements.select {
+            (Settlements.groupId eq groupId) and (Settlements.fromUserId eq userId)
+        }.sumOf { it[Settlements.amountCents] }
+
+        return (paid - owed) - settlementsReceived + settlementsPaid
     }
 }

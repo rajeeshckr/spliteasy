@@ -29,12 +29,12 @@ fun Route.groupRoutes() {
                     val groupId = call.parameters["id"]?.toIntOrNull()
                         ?: return@get call.respond(HttpStatusCode.BadRequest, ErrorResponse("Invalid group ID"))
 
+                    val group = GroupService.getGroupDetail(groupId)
+                        ?: return@get call.respond(HttpStatusCode.NotFound, ErrorResponse("Group not found"))
+
                     if (!GroupService.isUserInGroup(groupId, call.userId)) {
                         return@get call.respond(HttpStatusCode.Forbidden, ErrorResponse("Not a member of this group"))
                     }
-
-                    val group = GroupService.getGroupDetail(groupId)
-                        ?: return@get call.respond(HttpStatusCode.NotFound, ErrorResponse("Group not found"))
 
                     call.respond(HttpStatusCode.OK, group)
                 }

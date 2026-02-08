@@ -14,7 +14,7 @@ object DatabaseFactory {
         )
 
         transaction(database) {
-            SchemaUtils.create(Users, Groups, GroupMembers, Expenses, ExpenseSplits)
+            SchemaUtils.create(Users, Groups, GroupMembers, Expenses, ExpenseSplits, Settlements)
 
             // Seed test users if none exist
             if (Users.selectAll().empty()) {
