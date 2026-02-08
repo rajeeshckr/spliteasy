@@ -13,8 +13,10 @@ COPY settings.gradle.kts .
 # Copy source code
 COPY src src
 
-# Build the application distribution (skip tests for faster builds)
-RUN gradle installDist -x test --no-daemon
+# Run tests and build the application distribution
+RUN gradle test installDist --no-daemon
+# To skip tests for faster builds, replace the above line with:
+# RUN gradle installDist -x test --no-daemon
 
 # --- Stage 2: Runtime ---
 FROM docker.io/library/eclipse-temurin:17-jre-jammy

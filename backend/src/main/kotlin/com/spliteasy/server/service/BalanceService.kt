@@ -23,14 +23,26 @@ object BalanceService {
                 (Expenses.groupId eq groupId) and (Expenses.paidByUserId eq userId)
             }.sumOf { it[Expenses.amountCents] }
 
-            // Amount user owes
-            val owed = (ExpenseSplits innerJoin Expenses)
+            // Amount already settled on expenses this user paid for (by other users)
+            val settledOnUserExpenses = (ExpenseSplits innerJoin Expenses)
                 .select {
-                    (Expenses.groupId eq groupId) and (ExpenseSplits.userId eq userId)
+                    (Expenses.groupId eq groupId) and
+                    (Expenses.paidByUserId eq userId) and
+                    (ExpenseSplits.userId neq userId) and
+                    (ExpenseSplits.settled eq true)
                 }
                 .sumOf { it[ExpenseSplits.shareAmountCents] }
 
-            userBalances[userId] = paid - owed
+            // Amount user owes (excluding settled splits)
+            val owed = (ExpenseSplits innerJoin Expenses)
+                .select {
+                    (Expenses.groupId eq groupId) and
+                    (ExpenseSplits.userId eq userId) and
+                    (ExpenseSplits.settled eq false)
+                }
+                .sumOf { it[ExpenseSplits.shareAmountCents] }
+
+            userBalances[userId] = (paid - settledOnUserExpenses) - owed
         }
 
         // Simplify debts
