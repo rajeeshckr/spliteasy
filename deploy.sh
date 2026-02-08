@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 sudo podman build -t localhost/spliteasy-backend:latest ~/spliteasy/backend
 
