@@ -6,6 +6,9 @@ FROM docker.io/library/node:22-slim AS build
 
 WORKDIR /app
 
+# Build argument for API URL
+ARG VITE_API_URL=http://localhost:9090
+
 # Copy dependency files first (for layer caching)
 COPY package.json package-lock.json ./
 
@@ -17,8 +20,8 @@ COPY index.html tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.t
 COPY src src
 COPY public public
 
-# Build the production bundle
-RUN npm run build
+# Build the production bundle with API URL
+RUN VITE_API_URL=${VITE_API_URL} npm run build
 
 # --- Stage 2: Runtime ---
 FROM docker.io/library/nginx:alpine

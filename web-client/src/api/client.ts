@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+// Use VITE_API_URL env var, fallback to localStorage, then localhost
+const defaultApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:9090';
+
 const apiClient = axios.create({
-  baseURL: localStorage.getItem('serverUrl') || 'http://localhost:9090',
+  baseURL: localStorage.getItem('serverUrl') || defaultApiUrl,
   headers: { 'Content-Type': 'application/json' },
 });
 
